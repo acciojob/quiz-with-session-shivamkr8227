@@ -1,7 +1,4 @@
-//your JS code here.
-
-// Do not change code below this line
-// This code will just display the questions to the screen
+// Quiz questions
 const questions = [
   {
     question: "What is the capital of France?",
@@ -30,7 +27,17 @@ const questions = [
   },
 ];
 
+// Retrieve user progress from session storage
+let userAnswers = sessionStorage.getItem("progress");
+if (userAnswers) {
+  userAnswers = JSON.parse(userAnswers);
+} else {
+  userAnswers = [];
+}
+
 // Display the quiz questions and choices
+const questionsElement = document.getElementById("questions");
+
 function renderQuestions() {
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
@@ -54,3 +61,27 @@ function renderQuestions() {
   }
 }
 renderQuestions();
+
+// Save user progress to session storage when an option is selected
+questionsElement.addEventListener("change", function (event) {
+  const selectedChoice = event.target.value;
+  const questionIndex = event.target.getAttribute("name").split("-")[1];
+  userAnswers[questionIndex] = selectedChoice;
+  sessionStorage.setItem("progress", JSON.stringify(userAnswers));
+});
+
+// Submit the quiz and calculate the score
+const submitButton = document.getElementById("submit");
+const scoreElement = document.getElementById("score");
+
+submitButton.addEventListener("click", function () {
+  const correctAnswers = questions.map((question) => question.answer);
+  let score = 0;
+  for (let i = 0; i < correctAnswers.length; i++) {
+    if (userAnswers[i] === correctAnswers[i]) {
+      score++;
+    }
+  }
+  scoreElement.textContent = `Your score is ${score} out of ${questions.length}.`;
+  localStorage.setItem("score", score);
+});
